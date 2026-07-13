@@ -29,17 +29,22 @@ function UMKMListContent() {
           const transformed = data.map((row) => ({
             id: row.id,
             nama: row.nama,
-            deskripsi: row.deskripsi,
+            logo: (row as any).logo ?? '',
+            cover: (row as any).cover ?? '',
             kategori: row.kategori,
-            rt: row.rt,
-            produk: row.produk,
-            jamOperasional: (row as any).jam_operasional,
-            website: (row as any).website,
-            kontak: row.kontak,
+            deskripsi: row.deskripsi,
+            sejarah: (row as any).sejarah ?? '',
             alamat: row.alamat,
-            image_url: row.image_url,
-          }));
-          setUmkmData(transformed as UMKM[]);
+            rt: row.rt,
+            maps: (row as any).maps ?? '',
+            whatsapp: (row as any).whatsapp ?? '',
+            jamOperasional: (row as any).jam_operasional ?? '',
+            website: (row as any).website ?? '',
+            featured: (row as any).featured ?? false,
+            galeri: (row as any).galeri ?? [],
+            produk: (row as any).produk ?? [],
+          })) as unknown as UMKM[];
+          setUmkmData(transformed);
         }
         setLoading(false);
       });
