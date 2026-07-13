@@ -2,7 +2,8 @@
 import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { rtList } from "@/data/umkm";
-import { supabase, type UMKMRow } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
+import type { UMKM } from "@/data/umkm";
 import UMKMCard from "@/components/UMKMCard";
 import SearchFilter from "@/components/SearchFilter";
 import SkeletonCard from "@/components/SkeletonCard";
@@ -14,18 +15,31 @@ function UMKMListContent() {
   const [kategori, setKategori] = useState(searchParams.get("kategori") || "Semua");
   const [rt, setRt] = useState("Semua RT");
   const [loading, setLoading] = useState(true);
-  const [umkmData, setUmkmData] = useState<UMKMRow[]>([]);
+  const [umkmData, setUmkmData] = useState<UMKM[]>([]);
 
   useEffect(() => {
     supabase
-      .from("umkm")
-      .select("*")
-      .order("created_at", { ascending: false })
+      .from('umkm')
+      .select('*')
+      .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (error) {
           console.error(error);
-        } else {
-          setUmkmData(data as UMKMRow[]);
+        } else if (data) {
+          const transformed = data.map((row) => ({
+            id: row.id,
+            nama: row.nama,
+            deskripsi: row.deskripsi,
+            kategori: row.kategori,
+            rt: row.rt,
+            produk: row.produk,
+            jamOperasional: (row as any).jam_operasional,
+            website: (row as any).website,
+            kontak: row.kontak,
+            alamat: row.alamat,
+            image_url: row.image_url,
+          }));
+          setUmkmData(transformed as UMKM[]);
         }
         setLoading(false);
       });

@@ -12,11 +12,28 @@ const emptyForm: Omit<UMKMRow, "created_at"> = {
   id: "", nama: "", logo: "", cover: "", kategori: "Makanan",
   deskripsi: "", sejarah: "", alamat: "", rt: "RT 01",
   maps: "", whatsapp: "", instagram: "", facebook: "",
-  shopee: "", tokopedia: "", jam_operasional: "",
+  shopee: "", tokopedia: "", jamOperasional: "",
   featured: false, produk: [], galeri: [],
 };
 
 type ProdukItem = { id: string; nama: string; foto: string; harga: number; deskripsi: string; status: string };
+
+const input = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#011f6d] outline-none";
+const inputSm = "w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-[#011f6d] outline-none";
+
+const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+  <section className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
+    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
+    <div className="space-y-4">{children}</div>
+  </section>
+);
+
+const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+  <div className="space-y-1">
+    <label className="text-xs font-semibold text-gray-500">{label}</label>
+    {children}
+  </div>
+);
 
 export default function UMKMFormPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -147,7 +164,7 @@ export default function UMKMFormPage({ params }: { params: { id: string } }) {
               className={input} placeholder="628123456789" />
           </Field>
           <Field label="Jam Operasional *">
-            <input required value={form.jam_operasional} onChange={e => set("jam_operasional", e.target.value)}
+            <input required value={form.jamOperasional} onChange={e => set("jamOperasional", e.target.value)}
               className={input} placeholder="08.00 - 17.00 WIB (Setiap Hari)" />
           </Field>
           <div className="grid grid-cols-2 gap-4">
@@ -229,23 +246,4 @@ export default function UMKMFormPage({ params }: { params: { id: string } }) {
   );
 }
 
-const input = "w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-xl px-3 py-2.5 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#011f6d]/25 transition";
-const inputSm = "w-full border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#011f6d]/25 transition";
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 rounded-2xl p-6 space-y-4">
-      <h3 className="font-bold text-gray-900 dark:text-white text-sm border-b border-gray-100 dark:border-white/10 pb-3">{title}</h3>
-      {children}
-    </div>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</label>
-      {children}
-    </div>
-  );
-}

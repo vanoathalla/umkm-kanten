@@ -1,4 +1,4 @@
-﻿export interface Produk {
+export interface Produk {
   id: string;
   nama: string;
   foto: string;
@@ -23,7 +23,8 @@ export interface UMKM {
   facebook?: string;
   shopee?: string;
   tokopedia?: string;
-  jamOperasional: string;
+  jamOperasional?: string;
+  website?: string;
   featured: boolean;
   produk: Produk[];
   galeri: string[];
