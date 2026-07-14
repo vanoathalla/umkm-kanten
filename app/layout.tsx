@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import FloatingWA from "@/components/FloatingWA";
 import DarkModeProvider from "@/components/DarkModeProvider";
+import ConditionalLayout from "@/components/ConditionalLayout";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -32,11 +30,7 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id" suppressHydrationWarning className="scroll-smooth">
       <head>
@@ -50,10 +44,7 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
         <DarkModeProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <FloatingWA />
+          <ConditionalLayout>{children}</ConditionalLayout>
         </DarkModeProvider>
       </body>
     </html>
