@@ -21,8 +21,8 @@ export default function SearchSection() {
       <div className="max-w-3xl mx-auto px-4">
         <div className="text-center mb-8">
           <p className="section-label mb-1">Pencarian</p>
-          <h2 className="section-title dark:text-white mb-2">Cari UMKM</h2>
-          <p className="section-subtitle dark:text-gray-400 text-sm">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2" style={{ fontFamily: "var(--font-poppins)" }}>Cari UMKM</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             Temukan UMKM favorit Anda dengan mudah
           </p>
         </div>

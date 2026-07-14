@@ -59,7 +59,6 @@ export default function Footer() {
                 { href: "/umkm", label: "Daftar UMKM" },
                 { href: "/peta-potensi", label: "Peta Potensi" },
                 { href: "/tentang", label: "Tentang Desa" },
-                { href: "/kontak", label: "Kontak" },
               ].map((l) => (
                 <li key={l.href}>
                   <Link href={l.href} className="text-white/40 hover:text-[#ffaa4d] text-sm transition-colors">

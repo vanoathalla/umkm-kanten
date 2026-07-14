@@ -41,8 +41,8 @@ export default function MapOverview() {
 
         <div className="text-center mb-10">
           <p className="section-label mb-1">Lokasi</p>
-          <h2 className="section-title dark:text-white mb-3">Peta UMKM Desa Kanten</h2>
-          <p className="section-subtitle dark:text-gray-400 text-sm">
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-3" style={{ fontFamily: "var(--font-poppins)" }}>Peta UMKM Desa Kanten</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
             Temukan lokasi UMKM kami di seluruh dusun Desa Kanten
           </p>
         </div>

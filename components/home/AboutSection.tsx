@@ -52,13 +52,12 @@ export default function AboutSection() {
             ref={leftRef}
             className={`transition-all duration-700 ${leftIn ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"}`}
           >
-            {/* Aksara Jawa label */}
             <p className="aksara text-[#ffaa4d] text-xl mb-1 tracking-widest">ꦕꦫꦶꦠꦤ꧀ꦢꦺꦱ</p>
             <p className="section-label mb-2">Mengenal Kami</p>
-            <h2 className="section-title dark:text-white mb-5">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-5" style={{ fontFamily: "var(--font-poppins)" }}>
               Tentang Desa Kanten
             </h2>
-            <p className="section-subtitle dark:text-gray-400 mb-4 leading-relaxed">
+            <p className="text-gray-500 dark:text-gray-400 text-base leading-relaxed mb-4">
               Desa Kanten terletak di Kecamatan Imogiri, Kabupaten Bantul, Daerah Istimewa Yogyakarta.
               Dengan kekayaan budaya dan potensi ekonomi lokal yang besar, desa ini aktif mengembangkan
               UMKM sebagai tulang punggung perekonomian warganya.

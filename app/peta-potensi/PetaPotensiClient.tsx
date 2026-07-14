@@ -45,7 +45,7 @@ export default function PetaPotensiClient() {
   const [fullscreen, setFullscreen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-950">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
 
       {/* Page Header — pt-16 untuk navbar, pt di header sendiri untuk konten */}
       <div className="bg-[#011f6d] pt-28 pb-12 relative overflow-hidden">
