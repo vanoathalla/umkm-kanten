@@ -3,8 +3,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import {
-  MapPin, Clock, Phone, ShoppingBag,
-  Share2, ChevronLeft, CheckCircle, XCircle, ExternalLink,
+  MapPin, Clock, Phone,
+  Share2, ChevronLeft, ExternalLink,
   MessageCircle, Tag, Globe, ImageOff
 } from "lucide-react";
 import type { UMKM } from "@/data/umkm";
@@ -53,22 +53,14 @@ const kategoriColor: Record<string, string> = {
   Lainnya:   "bg-gray-100 text-gray-600",
 };
 
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency", currency: "IDR", maximumFractionDigits: 0,
-  }).format(price);
-}
-
 /* Step card — navy semua, konsisten */
 const stepAccent = { bg: "bg-[#011f6d]", text: "text-white" };
 
 export default function UMKMDetailClient({ umkm, related }: { umkm: UMKM; related: UMKM[] }) {
-  const hasProduk = Array.isArray(umkm.produk) && umkm.produk.length > 0;
   const hasGaleri = Array.isArray(umkm.galeri) && umkm.galeri.filter(g => g).length > 0;
 
-  // Only show tabs that have content
-  type Tab = "info" | "produk" | "galeri";
-  const availableTabs: Tab[] = ["info", ...(hasProduk ? ["produk" as Tab] : []), ...(hasGaleri ? ["galeri" as Tab] : [])];
+  type Tab = "info" | "galeri";
+  const availableTabs: Tab[] = ["info", ...(hasGaleri ? ["galeri" as Tab] : [])];
 
   const [activeTab, setActiveTab] = useState<Tab>("info");
   const [showQR, setShowQR]       = useState(false);
@@ -76,7 +68,6 @@ export default function UMKMDetailClient({ umkm, related }: { umkm: UMKM; relate
   const [loaded, setLoaded]       = useState(false);
 
   const { ref: infoRef, inView: infoIn } = useInView();
-  const { ref: produkRef, inView: produkIn } = useInView();
   const { ref: relatedRef, inView: relatedIn } = useInView();
 
   useEffect(() => {
@@ -198,18 +189,8 @@ export default function UMKMDetailClient({ umkm, related }: { umkm: UMKM; relate
               rel="noopener noreferrer"
               className="btn-primary flex-1 sm:flex-none justify-center text-sm"
             >
-              <MessageCircle size={16} /> Pesan via WhatsApp
+              <MessageCircle size={16} /> Hubungi via WhatsApp
             </a>
-            {umkm.shopee && (
-              <a href={umkm.shopee} target="_blank" rel="noopener noreferrer" className="btn-outline flex-1 sm:flex-none justify-center text-sm">
-                <ShoppingBag size={16} /> Shopee
-              </a>
-            )}
-            {umkm.tokopedia && (
-              <a href={umkm.tokopedia} target="_blank" rel="noopener noreferrer" className="btn-outline flex-1 sm:flex-none justify-center text-sm">
-                <ShoppingBag size={16} /> Tokopedia
-              </a>
-            )}
           </div>
         </div>
 
@@ -226,7 +207,7 @@ export default function UMKMDetailClient({ umkm, related }: { umkm: UMKM; relate
                   : "text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
               }`}
             >
-              {tab === "info" ? "Informasi" : tab === "produk" ? `Produk (${umkm.produk.length})` : `Galeri (${umkm.galeri.filter(g=>g).length})`}
+              {tab === "info" ? "Informasi" : `Galeri (${umkm.galeri.filter(g=>g).length})`}
             </button>
           ))}
         </div>
@@ -342,49 +323,6 @@ export default function UMKMDetailClient({ umkm, related }: { umkm: UMKM; relate
                 <MessageCircle size={17} /> Pesan Sekarang via WhatsApp
               </a>
             </div>
-          </div>
-        )}
-
-        {/* ────────────────────────── TAB: PRODUK ────────────────────────── */}
-        {activeTab === "produk" && (
-          <div ref={produkRef} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {umkm.produk.map((p, i) => (
-              <div
-                key={p.id}
-                className={`bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/10 rounded-2xl overflow-hidden hover:border-[#ffaa4d]/30 hover:shadow-md transition-all duration-300 ${produkIn ? "opacity-100 translate-y-0" : "opacity-0 translate-y-5"}`}
-                style={{ transitionDelay: `${i * 70}ms` }}
-              >
-                <div className="relative h-44 bg-gray-100 dark:bg-white/5 flex items-center justify-center">
-                  {p.foto
-                    ? <Image src={p.foto} alt={p.nama} fill className="object-cover" loading="lazy" />
-                    : <ImageOff size={28} className="text-gray-300" />
-                  }
-                  <div className={`absolute top-3 right-3 flex items-center gap-1 text-[11px] font-semibold px-2 py-1 rounded-full ${
-                    p.status === "tersedia"
-                      ? "bg-[#ffaa4d]/90 text-[#011f6d]"
-                      : "bg-red-100 text-red-600"
-                  }`}>
-                    {p.status === "tersedia" ? <CheckCircle size={11} /> : <XCircle size={11} />}
-                    {p.status === "tersedia" ? "Tersedia" : "Habis"}
-                  </div>
-                </div>
-                <div className="p-4">
-                  <h3 className="font-bold text-gray-900 dark:text-white text-sm mb-1">{p.nama}</h3>
-                  <p className="text-base font-bold text-[#011f6d] dark:text-[#ffaa4d] mb-2">{formatPrice(p.harga)}</p>
-                  <p className="text-xs text-gray-400 leading-relaxed mb-4">{p.deskripsi}</p>
-                  {p.status === "tersedia" && (
-                    <a
-                      href={`https://wa.me/${umkm.whatsapp}?text=Halo%2C%20saya%20ingin%20memesan%20${encodeURIComponent(p.nama)}%20dari%20${encodeURIComponent(umkm.nama)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn-gold w-full justify-center text-xs py-2.5"
-                    >
-                      <MessageCircle size={13} /> Pesan
-                    </a>
-                  )}
-                </div>
-              </div>
-            ))}
           </div>
         )}
 

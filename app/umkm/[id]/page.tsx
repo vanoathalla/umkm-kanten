@@ -27,7 +27,6 @@ function rowToUMKM(row: Record<string, unknown>): UMKM {
     jamOperasional: String(row.jam_operasional ?? ""),
     website:        row.website   ? String(row.website)   : undefined,
     featured:       Boolean(row.featured ?? false),
-    produk:         Array.isArray(row.produk) ? row.produk : [],
     galeri:         Array.isArray(row.galeri) ? row.galeri : [],
   };
 }

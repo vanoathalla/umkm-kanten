@@ -1,102 +1,66 @@
 "use client";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { Store, LogOut, LayoutDashboard, ChevronRight, RefreshCw } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ArrowLeft, RefreshCw, LayoutDashboard } from "lucide-react";
 
 interface AdminHeaderProps {
-  onRefresh?: () => void;
-  title?: string;
+  title: string;
   subtitle?: string;
   backHref?: string;
+  onRefresh?: () => void;
 }
 
-export default function AdminHeader({ onRefresh, title, subtitle, backHref }: AdminHeaderProps) {
-  const pathname = usePathname();
+export default function AdminHeader({ title, subtitle, backHref, onRefresh }: AdminHeaderProps) {
   const router = useRouter();
 
-  const handleLogout = async () => {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.push("/admin/login");
-  };
-
-  const isDetail = !!backHref;
-
   return (
-    <header className="bg-gradient-to-r from-[#011f6d] via-[#0a2f8a] to-[#011f6d] shadow-lg">
-      {/* Top bar */}
-      <div className="border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-12 flex items-center justify-between">
-          {/* Brand */}
-          <Link href="/admin" className="flex items-center gap-2 group">
-            <div className="w-7 h-7 bg-[#ffaa4d] rounded-lg flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-              <Store size={14} className="text-[#011f6d]" />
-            </div>
-            <span className="text-white font-bold text-sm tracking-tight">Admin Panel</span>
-            <span className="hidden sm:block text-white/30 text-xs">— UMKM Desa Kanten</span>
-          </Link>
+    <header className="bg-white border-b border-gray-100 sticky top-0 z-40 shadow-sm">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="flex items-center justify-between h-14">
 
-          {/* Actions */}
-          <div className="flex items-center gap-1">
+          {/* Left: back / logo */}
+          <div className="flex items-center gap-3">
+            {backHref ? (
+              <Link
+                href={backHref}
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#011f6d] hover:bg-[#011f6d]/8 transition"
+                aria-label="Kembali"
+              >
+                <ArrowLeft size={16} />
+              </Link>
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 bg-[#011f6d] rounded-lg flex items-center justify-center shrink-0">
+                  <LayoutDashboard size={13} className="text-white" />
+                </div>
+              </div>
+            )}
+
+            <div className="leading-tight">
+              <p className="font-bold text-gray-900 text-sm">{title}</p>
+              {subtitle && <p className="text-[11px] text-gray-400">{subtitle}</p>}
+            </div>
+          </div>
+
+          {/* Right: actions */}
+          <div className="flex items-center gap-2">
             {onRefresh && (
               <button
                 onClick={onRefresh}
-                className="w-8 h-8 flex items-center justify-center rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition"
-                title="Refresh data"
+                className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-400 hover:text-[#011f6d] hover:bg-[#011f6d]/8 transition"
+                aria-label="Refresh"
               >
                 <RefreshCw size={14} />
               </button>
             )}
             <button
-              onClick={handleLogout}
-              className="flex items-center gap-1.5 text-white/60 hover:text-white text-xs px-3 py-1.5 rounded-lg hover:bg-white/10 transition"
+              onClick={() => router.push("/api/admin/logout")}
+              className="text-xs text-gray-400 hover:text-red-500 transition px-2 py-1 rounded-lg hover:bg-red-50 font-medium"
             >
-              <LogOut size={13} />
-              <span className="hidden sm:block">Keluar</span>
+              Logout
             </button>
           </div>
-        </div>
-      </div>
 
-      {/* Page title bar */}
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
-        {/* Breadcrumb */}
-        <div className="flex items-center gap-1.5 text-white/40 text-xs mb-2">
-          <LayoutDashboard size={11} />
-          <Link href="/admin" className="hover:text-white/70 transition">Dashboard</Link>
-          {isDetail && (
-            <>
-              <ChevronRight size={10} />
-              <span className="text-white/60">{title}</span>
-            </>
-          )}
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {backHref && (
-              <Link
-                href={backHref}
-                className="w-8 h-8 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 text-white transition"
-              >
-                <ChevronRight size={16} className="rotate-180" />
-              </Link>
-            )}
-            <div>
-              <h1 className="text-white font-bold text-lg leading-tight">
-                {title ?? "Dashboard"}
-              </h1>
-              {subtitle && (
-                <p className="text-white/50 text-xs mt-0.5">{subtitle}</p>
-              )}
-            </div>
-          </div>
-
-          {/* Decorative accent */}
-          <div className="hidden sm:flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#ffaa4d] opacity-80" />
-            <span className="w-1.5 h-1.5 rounded-full bg-[#ffaa4d] opacity-50" />
-            <span className="w-1 h-1 rounded-full bg-[#ffaa4d] opacity-30" />
-          </div>
         </div>
       </div>
     </header>

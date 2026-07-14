@@ -2,14 +2,15 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, type UMKMRow } from "@/lib/supabase";
-import { Plus, Trash2, Save, Loader2 } from "lucide-react";
+import { Save, Loader2, Image as ImageIcon, X } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import AdminHeader from "@/components/AdminHeader";
 
 const kategoriList = ["Makanan", "Minuman", "Kerajinan", "Fashion", "Pertanian", "Jasa", "Lainnya"];
 const rtList = ["RT 01", "RT 02", "RT 03", "RT 04", "RT 05"];
 
-type FormData = Omit<UMKMRow, "created_at"> & {
+type FormData = Omit<UMKMRow, "created_at" | "produk"> & {
   instagram: string;
   facebook: string;
   shopee: string;
@@ -22,13 +23,10 @@ const emptyForm: FormData = {
   deskripsi: "", sejarah: "", alamat: "", rt: "RT 01",
   maps: "", whatsapp: "", instagram: "", facebook: "",
   shopee: "", tokopedia: "", jamOperasional: "",
-  featured: false, produk: [], galeri: [],
+  featured: false, galeri: [],
 };
 
-type ProdukItem = { id: string; nama: string; foto: string; harga: number; deskripsi: string; status: string };
-
 const input = "w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-[#011f6d] outline-none placeholder-gray-400";
-const inputSm = "w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-[#011f6d] outline-none placeholder-gray-400";
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
   <section className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
@@ -79,7 +77,6 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
           tokopedia:      (data as any).tokopedia ?? "",
           jamOperasional: (data as any).jam_operasional ?? "",
           featured:       (data as any).featured ?? false,
-          produk:         Array.isArray((data as any).produk) ? (data as any).produk : [],
           galeri:         Array.isArray((data as any).galeri) ? (data as any).galeri : [],
         });
       }
@@ -90,30 +87,21 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
   const set = (key: keyof FormData, val: unknown) =>
     setForm(f => ({ ...f, [key]: val }));
 
-  const addProduk = () => {
-    const np: ProdukItem = {
-      id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
-      nama: "", foto: "", harga: 0, deskripsi: "", status: "tersedia",
-    };
-    set("produk", [...(form.produk as ProdukItem[]), np]);
+  // Galeri helpers
+  const addGaleri = () => set("galeri", [...(form.galeri as string[]), ""]);
+  const updateGaleri = (i: number, val: string) => {
+    const g = [...(form.galeri as string[])];
+    g[i] = val;
+    set("galeri", g);
   };
-
-  const updateProduk = (i: number, key: keyof ProdukItem, val: string | number) => {
-    const p = [...form.produk] as ProdukItem[];
-    p[i] = { ...p[i], [key]: val };
-    set("produk", p);
-  };
-
-  const removeProduk = (i: number) => {
-    set("produk", (form.produk as ProdukItem[]).filter((_, idx) => idx !== i));
-  };
+  const removeGaleri = (i: number) =>
+    set("galeri", (form.galeri as string[]).filter((_, idx) => idx !== i));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
     setError("");
 
-    // Map camelCase → snake_case for DB, exclude jamOperasional key
     const { jamOperasional, ...rest } = form;
     const payload = {
       ...rest,
@@ -137,6 +125,8 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
     </div>
   );
 
+  const galeriList = form.galeri as string[];
+
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader
@@ -149,9 +139,7 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
 
         {/* Error / Success */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
-            {error}
-          </div>
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{error}</div>
         )}
         {success && (
           <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 text-sm">
@@ -159,7 +147,86 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
           </div>
         )}
 
-        {/* Informasi Dasar */}
+        {/* ── Foto Profil & Cover ── */}
+        <Section title="Foto">
+          {/* Logo / Foto Profil */}
+          <Field label="Foto Profil (Logo) — URL gambar">
+            <div className="flex gap-3 items-start">
+              <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 shrink-0 overflow-hidden flex items-center justify-center">
+                {form.logo
+                  ? <Image src={form.logo} alt="logo preview" width={64} height={64} className="object-cover w-full h-full" unoptimized />
+                  : <ImageIcon size={20} className="text-gray-300" />
+                }
+              </div>
+              <div className="flex-1">
+                <input
+                  value={form.logo}
+                  onChange={e => set("logo", e.target.value)}
+                  className={input}
+                  placeholder="https://... (URL foto profil / logo UMKM)"
+                />
+                <p className="text-[11px] text-gray-400 mt-1">Foto ini tampil sebagai ikon bulat di kartu katalog.</p>
+              </div>
+            </div>
+          </Field>
+
+          {/* Cover */}
+          <Field label="Foto Cover — URL gambar">
+            <div className="space-y-2">
+              <div className="w-full h-36 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
+                {form.cover
+                  ? <Image src={form.cover} alt="cover preview" width={600} height={144} className="object-cover w-full h-full" unoptimized />
+                  : <div className="text-center">
+                      <ImageIcon size={24} className="text-gray-300 mx-auto mb-1" />
+                      <p className="text-xs text-gray-300">Preview cover</p>
+                    </div>
+                }
+              </div>
+              <input
+                value={form.cover}
+                onChange={e => set("cover", e.target.value)}
+                className={input}
+                placeholder="https://... (URL foto cover / banner UMKM)"
+              />
+              <p className="text-[11px] text-gray-400">Foto ini tampil sebagai banner lebar di bagian atas halaman detail.</p>
+            </div>
+          </Field>
+
+          {/* Galeri */}
+          <Field label="Foto Galeri (opsional)">
+            <div className="space-y-2">
+              {galeriList.map((url, i) => (
+                <div key={i} className="flex gap-2 items-center">
+                  <div className="w-10 h-10 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden shrink-0 flex items-center justify-center">
+                    {url
+                      ? <Image src={url} alt={`galeri-${i}`} width={40} height={40} className="object-cover w-full h-full" unoptimized />
+                      : <ImageIcon size={14} className="text-gray-300" />
+                    }
+                  </div>
+                  <input
+                    value={url}
+                    onChange={e => updateGaleri(i, e.target.value)}
+                    className={input}
+                    placeholder={`https://... (foto galeri ${i + 1})`}
+                  />
+                  <button type="button" onClick={() => removeGaleri(i)}
+                    className="text-gray-300 hover:text-red-400 transition shrink-0">
+                    <X size={16} />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                onClick={addGaleri}
+                className="text-xs text-[#011f6d] font-semibold hover:underline flex items-center gap-1 mt-1"
+              >
+                + Tambah foto galeri
+              </button>
+            </div>
+          </Field>
+        </Section>
+
+        {/* ── Informasi Dasar ── */}
         <Section title="Informasi Dasar">
           <Field label="Nama UMKM *">
             <input required value={form.nama} onChange={e => set("nama", e.target.value)}
@@ -195,14 +262,14 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
           </div>
         </Section>
 
-        {/* Kontak & Lokasi */}
+        {/* ── Kontak & Lokasi ── */}
         <Section title="Kontak & Lokasi">
           <Field label="Alamat *">
             <input required value={form.alamat} onChange={e => set("alamat", e.target.value)}
               className={input} placeholder="Alamat lengkap..." />
           </Field>
-          <Field label="No. WhatsApp * (format: 628xxx)">
-            <input required value={form.whatsapp} onChange={e => set("whatsapp", e.target.value)}
+          <Field label="No. WhatsApp (format: 628xxx)">
+            <input value={form.whatsapp} onChange={e => set("whatsapp", e.target.value)}
               className={input} placeholder="628123456789" />
           </Field>
           <Field label="Jam Operasional">
@@ -233,51 +300,7 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
           </Field>
         </Section>
 
-        {/* Produk */}
-        <Section title="Produk (Opsional)">
-          <div className="space-y-3">
-            {(form.produk as ProdukItem[]).map((p, i) => (
-              <div key={p.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-500">Produk {i + 1}</span>
-                  <button type="button" onClick={() => removeProduk(i)}
-                    className="text-red-400 hover:text-red-600 transition">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <Field label="Nama Produk">
-                    <input value={p.nama} onChange={e => updateProduk(i, "nama", e.target.value)}
-                      className={inputSm} placeholder="Nama produk" />
-                  </Field>
-                  <Field label="Harga (Rp)">
-                    <input type="number" value={p.harga} onChange={e => updateProduk(i, "harga", Number(e.target.value))}
-                      className={inputSm} placeholder="15000" />
-                  </Field>
-                </div>
-                <Field label="Deskripsi Produk">
-                  <input value={p.deskripsi} onChange={e => updateProduk(i, "deskripsi", e.target.value)}
-                    className={inputSm} placeholder="Deskripsi singkat produk..." />
-                </Field>
-                <Field label="Status">
-                  <select value={p.status} onChange={e => updateProduk(i, "status", e.target.value)} className={inputSm}>
-                    <option value="tersedia">Tersedia</option>
-                    <option value="habis">Habis</option>
-                  </select>
-                </Field>
-              </div>
-            ))}
-          </div>
-          <button type="button" onClick={addProduk}
-            className="flex items-center gap-2 text-[#011f6d] text-sm font-semibold hover:underline mt-1">
-            <Plus size={15} /> Tambah Produk
-          </button>
-          {(form.produk as ProdukItem[]).length === 0 && (
-            <p className="text-xs text-gray-400">Produk kosong — tab Produk tidak akan ditampilkan di halaman publik.</p>
-          )}
-        </Section>
-
-        {/* Simpan */}
+        {/* ── Simpan ── */}
         <div className="flex items-center gap-3 pb-8">
           <button type="submit" disabled={saving}
             className="flex items-center gap-2 bg-[#011f6d] hover:bg-[#1a3d96] text-white font-semibold px-6 py-3 rounded-xl transition disabled:opacity-50 text-sm">

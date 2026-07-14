@@ -84,10 +84,7 @@ export default function UMKMCard({ umkm }: { umkm: UMKM }) {
           {umkm.deskripsi}
         </p>
 
-        <div className="flex items-center justify-between">
-          <span className="text-[11px] text-gray-300 dark:text-gray-500">
-            {umkm.produk.length} produk
-          </span>
+        <div className="flex items-center justify-end">
           <span className="flex items-center gap-1 text-xs font-semibold text-[#011f6d] dark:text-[#ffaa4d] group-hover:gap-2 transition-all">
             Detail <ArrowRight size={11} />
           </span>

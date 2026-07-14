@@ -42,7 +42,6 @@ function UMKMListContent() {
             website: (row as any).website ?? '',
             featured: (row as any).featured ?? false,
             galeri: (row as any).galeri ?? [],
-            produk: (row as any).produk ?? [],
           })) as unknown as UMKM[];
           setUmkmData(transformed);
         }
@@ -56,8 +55,7 @@ function UMKMListContent() {
       const matchQuery =
         q === "" ||
         u.nama.toLowerCase().includes(q) ||
-        u.deskripsi.toLowerCase().includes(q) ||
-        (Array.isArray(u.produk) && u.produk.some((p: any) => p.nama.toLowerCase().includes(q)));
+        u.deskripsi.toLowerCase().includes(q);
       const matchKategori = kategori === "Semua" || u.kategori === kategori;
       const matchRt = rt === "Semua RT" || u.rt === rt;
       return matchQuery && matchKategori && matchRt;
