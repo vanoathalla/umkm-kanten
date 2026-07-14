@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
-import DarkModeProvider from "@/components/DarkModeProvider";
 import ConditionalLayout from "@/components/ConditionalLayout";
 
 const inter = Inter({
@@ -32,20 +31,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="id" suppressHydrationWarning className="scroll-smooth">
+    <html lang="id" className="scroll-smooth">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        {/* Apply dark mode before hydration — only use stored preference, no system fallback */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{if(localStorage.getItem('darkMode')==='true'){document.documentElement.classList.add('dark');}}catch(e){}})();`,
-          }}
-        />
       </head>
-      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
-        <DarkModeProvider>
-          <ConditionalLayout>{children}</ConditionalLayout>
-        </DarkModeProvider>
+      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased bg-white text-gray-900`}>
+        <ConditionalLayout>{children}</ConditionalLayout>
       </body>
     </html>
   );

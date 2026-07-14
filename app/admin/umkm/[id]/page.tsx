@@ -2,8 +2,9 @@
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, type UMKMRow } from "@/lib/supabase";
-import { ChevronLeft, Plus, Trash2, Save, Loader2 } from "lucide-react";
+import { Plus, Trash2, Save, Loader2 } from "lucide-react";
 import Link from "next/link";
+import AdminHeader from "@/components/AdminHeader";
 
 const kategoriList = ["Makanan", "Minuman", "Kerajinan", "Fashion", "Pertanian", "Jasa", "Lainnya"];
 const rtList = ["RT 01", "RT 02", "RT 03", "RT 04", "RT 05"];
@@ -26,19 +27,19 @@ const emptyForm: FormData = {
 
 type ProdukItem = { id: string; nama: string; foto: string; harga: number; deskripsi: string; status: string };
 
-const input = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-[#011f6d] outline-none placeholder-gray-400 dark:placeholder-gray-500";
-const inputSm = "w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1.5 text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-[#011f6d] outline-none placeholder-gray-400 dark:placeholder-gray-500";
+const input = "w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:ring-[#011f6d] outline-none placeholder-gray-400";
+const inputSm = "w-full bg-white border border-gray-200 rounded-lg px-2 py-1.5 text-xs text-gray-900 focus:ring-2 focus:ring-[#011f6d] outline-none placeholder-gray-400";
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <section className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 sm:p-6 shadow-sm">
-    <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
+  <section className="bg-white border border-gray-200 rounded-2xl p-4 sm:p-6 shadow-sm">
+    <h2 className="text-base font-bold text-gray-900 mb-4">{title}</h2>
     <div className="space-y-4">{children}</div>
   </section>
 );
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-1">
-    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{label}</label>
+    <label className="text-xs font-semibold text-gray-500">{label}</label>
     {children}
   </div>
 );
@@ -131,34 +132,29 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
       <Loader2 size={24} className="animate-spin text-[#011f6d]" />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
-      {/* Topbar */}
-      <header className="bg-[#011f6d] px-4 sm:px-6 py-4 flex items-center gap-3">
-        <Link href="/admin" className="text-white/60 hover:text-white transition">
-          <ChevronLeft size={20} />
-        </Link>
-        <div>
-          <p className="text-white font-bold text-sm">{isNew ? "Tambah UMKM Baru" : `Edit: ${form.nama || id}`}</p>
-          <p className="text-white/40 text-[10px]">{isNew ? "Isi form di bawah" : `ID: ${id}`}</p>
-        </div>
-      </header>
+    <div className="min-h-screen bg-gray-50">
+      <AdminHeader
+        title={isNew ? "Tambah UMKM Baru" : `Edit: ${form.nama || id}`}
+        subtitle={isNew ? "Isi form di bawah" : `ID: ${id}`}
+        backHref="/admin"
+      />
 
       <form onSubmit={handleSave} className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
         {/* Error / Success */}
         {error && (
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
+          <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">
             {error}
           </div>
         )}
         {success && (
-          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded-xl px-4 py-3 text-sm">
+          <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 text-sm">
             Tersimpan! Mengarahkan...
           </div>
         )}
@@ -193,7 +189,7 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
             <input type="checkbox" id="featured" checked={form.featured}
               onChange={e => set("featured", e.target.checked)}
               className="w-4 h-4 accent-[#011f6d]" />
-            <label htmlFor="featured" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+            <label htmlFor="featured" className="text-sm text-gray-700 cursor-pointer">
               Tampilkan di bagian UMKM Unggulan
             </label>
           </div>
@@ -241,9 +237,9 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
         <Section title="Produk (Opsional)">
           <div className="space-y-3">
             {(form.produk as ProdukItem[]).map((p, i) => (
-              <div key={p.id} className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl p-4 space-y-3">
+              <div key={p.id} className="bg-gray-50 border border-gray-200 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Produk {i + 1}</span>
+                  <span className="text-xs font-semibold text-gray-500">Produk {i + 1}</span>
                   <button type="button" onClick={() => removeProduk(i)}
                     className="text-red-400 hover:text-red-600 transition">
                     <Trash2 size={14} />
@@ -273,11 +269,11 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
             ))}
           </div>
           <button type="button" onClick={addProduk}
-            className="flex items-center gap-2 text-[#011f6d] dark:text-[#ffaa4d] text-sm font-semibold hover:underline mt-1">
+            className="flex items-center gap-2 text-[#011f6d] text-sm font-semibold hover:underline mt-1">
             <Plus size={15} /> Tambah Produk
           </button>
           {(form.produk as ProdukItem[]).length === 0 && (
-            <p className="text-xs text-gray-400 dark:text-gray-500">Produk kosong — tab Produk tidak akan ditampilkan di halaman publik.</p>
+            <p className="text-xs text-gray-400">Produk kosong — tab Produk tidak akan ditampilkan di halaman publik.</p>
           )}
         </Section>
 
@@ -288,7 +284,7 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             {saving ? "Menyimpan..." : "Simpan"}
           </button>
-          <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">Batal</Link>
+          <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 transition">Batal</Link>
         </div>
       </form>
     </div>
