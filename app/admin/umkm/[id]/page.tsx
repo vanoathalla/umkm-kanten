@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, type UMKMRow } from "@/lib/supabase";
 import { ChevronLeft, Plus, Trash2, Save, Loader2 } from "lucide-react";
@@ -35,8 +35,8 @@ const Field = ({ label, children }: { label: string; children: React.ReactNode }
   </div>
 );
 
-export default function UMKMFormPage({ params }: { params: { id: string } }) {
-  const { id } = params;
+export default function UMKMFormPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const isNew = id === "baru";
   const router = useRouter();
 
@@ -49,7 +49,13 @@ export default function UMKMFormPage({ params }: { params: { id: string } }) {
   useEffect(() => {
     if (isNew) return;
     supabase.from("umkm").select("*").eq("id", id).single().then(({ data }) => {
-      if (data) setForm(data);
+      if (data) {
+        // Map snake_case DB columns to camelCase form fields
+        setForm({
+          ...data,
+          jamOperasional: (data as any).jam_operasional ?? "",
+        });
+      }
       setLoading(false);
     });
   }, [id, isNew]);
@@ -77,9 +83,12 @@ export default function UMKMFormPage({ params }: { params: { id: string } }) {
     setSaving(true);
     setError("");
 
+    // Map camelCase form fields to snake_case DB columns
+    const { jamOperasional, ...rest } = form;
     const payload = {
-      ...form,
+      ...rest,
       id: form.id || form.nama.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      jam_operasional: jamOperasional,
     };
 
     const { error } = isNew

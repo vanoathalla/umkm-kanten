@@ -10,7 +10,8 @@ export async function POST(req: NextRequest) {
   const res = NextResponse.json({ ok: true });
   res.cookies.set("admin_token", process.env.ADMIN_PASSWORD!, {
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "lax",   // "strict" blocks cookie on redirect — use "lax" instead
+    secure: process.env.NODE_ENV === "production",
     path: "/",
     maxAge: 60 * 60 * 24, // 1 hari
   });

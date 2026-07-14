@@ -7,6 +7,8 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "placehold.co" },
       { protocol: "https", hostname: "via.placeholder.com" },
       { protocol: "https", hostname: "source.unsplash.com" },
+      // Supabase storage — required for UMKM images uploaded via admin
+      { protocol: "https", hostname: "wdodrsbjnizedysminvk.supabase.co" },
     ],
   },
 };

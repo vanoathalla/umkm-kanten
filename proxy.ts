@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(req: NextRequest) {
+// Next.js 16: middleware.ts renamed to proxy.ts
+// https://nextjs.org/docs/messages/middleware-to-proxy
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Proteksi semua route /admin kecuali /admin/login
