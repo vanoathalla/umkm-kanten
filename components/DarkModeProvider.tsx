@@ -12,12 +12,10 @@ export default function DarkModeProvider({ children }: { children: React.ReactNo
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
-    // Read preference: localStorage first, then system preference
+    // Only use explicitly stored preference — default is light mode
     const stored = localStorage.getItem("darkMode");
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const shouldDark = stored !== null ? stored === "true" : prefersDark;
+    const shouldDark = stored === "true";
     setDark(shouldDark);
-    // Apply to <html> so Tailwind's dark: classes work everywhere
     if (shouldDark) {
       document.documentElement.classList.add("dark");
     } else {
