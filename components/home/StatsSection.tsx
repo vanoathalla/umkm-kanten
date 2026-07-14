@@ -1,7 +1,8 @@
 "use client";
-import { umkmData, kategoriList } from "@/data/umkm";
+import { supabase } from "@/lib/supabase";
 import { Store, Tag, MapPin, Users } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { kategoriList } from "@/data/umkm";
 
 function useCountUp(target: number, duration = 1400) {
   const [count, setCount] = useState(0);
@@ -9,6 +10,7 @@ function useCountUp(target: number, duration = 1400) {
   const started = useRef(false);
 
   useEffect(() => {
+    if (target === 0) return;
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !started.current) {
@@ -34,17 +36,9 @@ function useCountUp(target: number, duration = 1400) {
 }
 
 function StatCard({
-  icon: Icon,
-  value,
-  suffix = "+",
-  label,
-  accent,
+  icon: Icon, value, suffix = "+", label, accent,
 }: {
-  icon: React.ElementType;
-  value: number;
-  suffix?: string;
-  label: string;
-  accent: string;
+  icon: React.ElementType; value: number; suffix?: string; label: string; accent: string;
 }) {
   const { count, ref } = useCountUp(value);
   return (
@@ -62,8 +56,7 @@ function StatCard({
         className="text-3xl font-bold text-[#011f6d] dark:text-white mb-1"
         style={{ fontFamily: "var(--font-poppins)" }}
       >
-        {count}
-        {suffix}
+        {count}{suffix}
       </p>
       <p className="text-gray-400 dark:text-gray-500 text-sm">{label}</p>
     </div>
@@ -71,15 +64,26 @@ function StatCard({
 }
 
 export default function StatsSection() {
+  const [totalUMKM, setTotalUMKM] = useState(0);
   const kategoriCount = kategoriList.filter((k) => k !== "Semua").length;
+
+  useEffect(() => {
+    supabase
+      .from("umkm")
+      .select("id", { count: "exact", head: true })
+      .then(({ count }) => {
+        if (count !== null) setTotalUMKM(count);
+      });
+  }, []);
+
   return (
     <section className="py-16 bg-gray-50 dark:bg-[#011f6d]/20">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <StatCard icon={Store}  value={umkmData.length} label="Total UMKM"       accent="#011f6d" />
-          <StatCard icon={Tag}    value={kategoriCount}   label="Kategori"          accent="#ffaa4d" />
-          <StatCard icon={MapPin} value={5}               label="RT"      suffix="" accent="#011f6d" />
-          <StatCard icon={Users}  value={500}             label="Warga Terlayani"  accent="#ffaa4d" />
+          <StatCard icon={Store}  value={totalUMKM}    label="Total UMKM"      accent="#011f6d" />
+          <StatCard icon={Tag}    value={kategoriCount} label="Kategori"         accent="#ffaa4d" />
+          <StatCard icon={MapPin} value={5}             label="RT"    suffix=""  accent="#011f6d" />
+          <StatCard icon={Users}  value={500}           label="Warga Terlayani" accent="#ffaa4d" />
         </div>
       </div>
     </section>

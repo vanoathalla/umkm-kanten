@@ -138,10 +138,16 @@
     line-height: 1.2;
     font-family: var(--font-poppins);
   }
+  html.dark .section-title {
+    color: #f9fafb;
+  }
   .section-subtitle {
     color: #64748b;
     font-size: 1.05rem;
     line-height: 1.65;
+  }
+  html.dark .section-subtitle {
+    color: #9ca3af;
   }
   .section-label {
     font-size: 0.75rem;

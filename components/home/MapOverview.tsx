@@ -1,6 +1,6 @@
 "use client";
 import { MapPin } from "lucide-react";
-import { umkmData } from "@/data/umkm";
+import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -18,8 +18,22 @@ function useInView(threshold = 0.1) {
   return { ref, inView };
 }
 
+type UMKMItem = { id: string; nama: string; rt: string };
+
 export default function MapOverview() {
   const { ref, inView } = useInView();
+  const [umkmList, setUmkmList] = useState<UMKMItem[]>([]);
+
+  useEffect(() => {
+    supabase
+      .from("umkm")
+      .select("id, nama, rt")
+      .order("created_at", { ascending: false })
+      .limit(6)
+      .then(({ data }) => {
+        if (data) setUmkmList(data as UMKMItem[]);
+      });
+  }, []);
 
   return (
     <section className="py-24 bg-gray-50 dark:bg-[#011f6d]/10">
@@ -48,7 +62,7 @@ export default function MapOverview() {
 
         {/* Location list */}
         <div ref={ref} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {umkmData.slice(0, 6).map((u, i) => (
+          {umkmList.map((u, i) => (
             <Link
               key={u.id}
               href={`/umkm/${u.id}`}
@@ -68,6 +82,11 @@ export default function MapOverview() {
               </div>
             </Link>
           ))}
+          {umkmList.length === 0 && (
+            <div className="col-span-3 py-8 text-center text-gray-400 text-sm">
+              Memuat data UMKM...
+            </div>
+          )}
         </div>
       </div>
     </section>
