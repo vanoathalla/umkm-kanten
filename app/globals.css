@@ -22,6 +22,12 @@
     color: #1a1a1a;
   }
 
+  /* Dark mode body */
+  html.dark body {
+    background-color: #030712;
+    color: #f9fafb;
+  }
+
   /* Custom Scrollbar */
   ::-webkit-scrollbar {
     width: 5px;

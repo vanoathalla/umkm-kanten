@@ -8,7 +8,15 @@ import Link from "next/link";
 const kategoriList = ["Makanan", "Minuman", "Kerajinan", "Fashion", "Pertanian", "Jasa", "Lainnya"];
 const rtList = ["RT 01", "RT 02", "RT 03", "RT 04", "RT 05"];
 
-const emptyForm: Omit<UMKMRow, "created_at"> = {
+type FormData = Omit<UMKMRow, "created_at"> & {
+  instagram: string;
+  facebook: string;
+  shopee: string;
+  tokopedia: string;
+  jamOperasional: string;
+};
+
+const emptyForm: FormData = {
   id: "", nama: "", logo: "", cover: "", kategori: "Makanan",
   deskripsi: "", sejarah: "", alamat: "", rt: "RT 01",
   maps: "", whatsapp: "", instagram: "", facebook: "",
@@ -18,19 +26,19 @@ const emptyForm: Omit<UMKMRow, "created_at"> = {
 
 type ProdukItem = { id: string; nama: string; foto: string; harga: number; deskripsi: string; status: string };
 
-const input = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-[#011f6d] outline-none";
-const inputSm = "w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-800 rounded-lg px-2 py-1.5 text-xs focus:ring-2 focus:ring-[#011f6d] outline-none";
+const input = "w-full bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-[#011f6d] outline-none placeholder-gray-400 dark:placeholder-gray-500";
+const inputSm = "w-full bg-white dark:bg-gray-950 border border-gray-200 dark:border-gray-700 rounded-lg px-2 py-1.5 text-xs text-gray-900 dark:text-white focus:ring-2 focus:ring-[#011f6d] outline-none placeholder-gray-400 dark:placeholder-gray-500";
 
 const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
-  <section className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-6 shadow-sm">
-    <h2 className="text-lg font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
+  <section className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-2xl p-4 sm:p-6 shadow-sm">
+    <h2 className="text-base font-bold text-gray-900 dark:text-white mb-4">{title}</h2>
     <div className="space-y-4">{children}</div>
   </section>
 );
 
 const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
   <div className="space-y-1">
-    <label className="text-xs font-semibold text-gray-500">{label}</label>
+    <label className="text-xs font-semibold text-gray-500 dark:text-gray-400">{label}</label>
     {children}
   </div>
 );
@@ -40,7 +48,7 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
   const isNew = id === "baru";
   const router = useRouter();
 
-  const [form, setForm]       = useState<Omit<UMKMRow, "created_at">>(emptyForm);
+  const [form, setForm]       = useState<FormData>(emptyForm);
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving]   = useState(false);
   const [error, setError]     = useState("");
@@ -48,24 +56,45 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
 
   useEffect(() => {
     if (isNew) return;
-    supabase.from("umkm").select("*").eq("id", id).single().then(({ data }) => {
-      if (data) {
-        // Map snake_case DB columns to camelCase form fields
+    setLoading(true);
+    supabase.from("umkm").select("*").eq("id", id).single().then(({ data, error }) => {
+      if (data && !error) {
+        // Map all DB fields (snake_case) to form fields (camelCase)
         setForm({
-          ...data,
+          id:             data.id ?? "",
+          nama:           data.nama ?? "",
+          logo:           (data as any).logo ?? "",
+          cover:          (data as any).cover ?? "",
+          kategori:       data.kategori ?? "Makanan",
+          deskripsi:      data.deskripsi ?? "",
+          sejarah:        (data as any).sejarah ?? "",
+          alamat:         data.alamat ?? "",
+          rt:             data.rt ?? "RT 01",
+          maps:           (data as any).maps ?? "",
+          whatsapp:       (data as any).whatsapp ?? "",
+          instagram:      (data as any).instagram ?? "",
+          facebook:       (data as any).facebook ?? "",
+          shopee:         (data as any).shopee ?? "",
+          tokopedia:      (data as any).tokopedia ?? "",
           jamOperasional: (data as any).jam_operasional ?? "",
+          featured:       (data as any).featured ?? false,
+          produk:         Array.isArray((data as any).produk) ? (data as any).produk : [],
+          galeri:         Array.isArray((data as any).galeri) ? (data as any).galeri : [],
         });
       }
       setLoading(false);
     });
   }, [id, isNew]);
 
-  const set = (key: keyof typeof form, val: unknown) =>
+  const set = (key: keyof FormData, val: unknown) =>
     setForm(f => ({ ...f, [key]: val }));
 
   const addProduk = () => {
-    const np: ProdukItem = { id: Date.now().toString(), nama: "", foto: "", harga: 0, deskripsi: "", status: "tersedia" };
-    set("produk", [...form.produk, np]);
+    const np: ProdukItem = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
+      nama: "", foto: "", harga: 0, deskripsi: "", status: "tersedia",
+    };
+    set("produk", [...(form.produk as ProdukItem[]), np]);
   };
 
   const updateProduk = (i: number, key: keyof ProdukItem, val: string | number) => {
@@ -83,26 +112,26 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
     setSaving(true);
     setError("");
 
-    // Map camelCase form fields to snake_case DB columns
+    // Map camelCase → snake_case for DB, exclude jamOperasional key
     const { jamOperasional, ...rest } = form;
     const payload = {
       ...rest,
-      id: form.id || form.nama.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+      id: form.id.trim() || form.nama.toLowerCase().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
       jam_operasional: jamOperasional,
     };
 
-    const { error } = isNew
+    const { error: dbError } = isNew
       ? await supabase.from("umkm").insert(payload)
       : await supabase.from("umkm").update(payload).eq("id", id);
 
     setSaving(false);
-    if (error) { setError(error.message); return; }
+    if (dbError) { setError(dbError.message); return; }
     setSuccess(true);
-    setTimeout(() => router.push("/admin"), 1000);
+    setTimeout(() => router.push("/admin"), 1200);
   };
 
   if (loading) return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
       <Loader2 size={24} className="animate-spin text-[#011f6d]" />
     </div>
   );
@@ -115,16 +144,24 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
           <ChevronLeft size={20} />
         </Link>
         <div>
-          <p className="text-white font-bold text-sm">{isNew ? "Tambah UMKM Baru" : "Edit UMKM"}</p>
+          <p className="text-white font-bold text-sm">{isNew ? "Tambah UMKM Baru" : `Edit: ${form.nama || id}`}</p>
           <p className="text-white/40 text-[10px]">{isNew ? "Isi form di bawah" : `ID: ${id}`}</p>
         </div>
       </header>
 
-      <form onSubmit={handleSave} className="max-w-3xl mx-auto px-4 sm:px-6 py-8 space-y-6">
+      <form onSubmit={handleSave} className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
         {/* Error / Success */}
-        {error && <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{error}</div>}
-        {success && <div className="bg-green-50 border border-green-200 text-green-700 rounded-xl px-4 py-3 text-sm">Tersimpan! Mengarahkan...</div>}
+        {error && (
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 rounded-xl px-4 py-3 text-sm">
+            {error}
+          </div>
+        )}
+        {success && (
+          <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-400 rounded-xl px-4 py-3 text-sm">
+            Tersimpan! Mengarahkan...
+          </div>
+        )}
 
         {/* Informasi Dasar */}
         <Section title="Informasi Dasar">
@@ -132,7 +169,7 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
             <input required value={form.nama} onChange={e => set("nama", e.target.value)}
               className={input} placeholder="Contoh: Barokah Snack Bu Sugiyem" />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <Field label="Kategori *">
               <select value={form.kategori} onChange={e => set("kategori", e.target.value)} className={input}>
                 {kategoriList.map(k => <option key={k}>{k}</option>)}
@@ -156,7 +193,7 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
             <input type="checkbox" id="featured" checked={form.featured}
               onChange={e => set("featured", e.target.checked)}
               className="w-4 h-4 accent-[#011f6d]" />
-            <label htmlFor="featured" className="text-sm text-gray-700 dark:text-gray-300">
+            <label htmlFor="featured" className="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
               Tampilkan di bagian UMKM Unggulan
             </label>
           </div>
@@ -172,11 +209,11 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
             <input required value={form.whatsapp} onChange={e => set("whatsapp", e.target.value)}
               className={input} placeholder="628123456789" />
           </Field>
-          <Field label="Jam Operasional *">
-            <input required value={form.jamOperasional} onChange={e => set("jamOperasional", e.target.value)}
+          <Field label="Jam Operasional">
+            <input value={form.jamOperasional} onChange={e => set("jamOperasional", e.target.value)}
               className={input} placeholder="08.00 - 17.00 WIB (Setiap Hari)" />
           </Field>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
             <Field label="Instagram (opsional)">
               <input value={form.instagram} onChange={e => set("instagram", e.target.value)}
                 className={input} placeholder="username_tanpa_@" />
@@ -201,12 +238,12 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
         </Section>
 
         {/* Produk */}
-        <Section title="Produk">
+        <Section title="Produk (Opsional)">
           <div className="space-y-3">
             {(form.produk as ProdukItem[]).map((p, i) => (
               <div key={p.id} className="bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl p-4 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-gray-500">Produk {i + 1}</span>
+                  <span className="text-xs font-semibold text-gray-500 dark:text-gray-400">Produk {i + 1}</span>
                   <button type="button" onClick={() => removeProduk(i)}
                     className="text-red-400 hover:text-red-600 transition">
                     <Trash2 size={14} />
@@ -239,6 +276,9 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
             className="flex items-center gap-2 text-[#011f6d] dark:text-[#ffaa4d] text-sm font-semibold hover:underline mt-1">
             <Plus size={15} /> Tambah Produk
           </button>
+          {(form.produk as ProdukItem[]).length === 0 && (
+            <p className="text-xs text-gray-400 dark:text-gray-500">Produk kosong — tab Produk tidak akan ditampilkan di halaman publik.</p>
+          )}
         </Section>
 
         {/* Simpan */}
@@ -248,11 +288,9 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
             {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
             {saving ? "Menyimpan..." : "Simpan"}
           </button>
-          <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 transition">Batal</Link>
+          <Link href="/admin" className="text-sm text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">Batal</Link>
         </div>
       </form>
     </div>
   );
 }
-
-

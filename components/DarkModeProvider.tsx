@@ -12,10 +12,16 @@ export default function DarkModeProvider({ children }: { children: React.ReactNo
   const [dark, setDark] = useState(false);
 
   useEffect(() => {
+    // Read preference: localStorage first, then system preference
     const stored = localStorage.getItem("darkMode");
-    if (stored === "true") {
-      setDark(true);
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const shouldDark = stored !== null ? stored === "true" : prefersDark;
+    setDark(shouldDark);
+    // Apply to <html> so Tailwind's dark: classes work everywhere
+    if (shouldDark) {
       document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
     }
   }, []);
 
@@ -23,15 +29,19 @@ export default function DarkModeProvider({ children }: { children: React.ReactNo
     setDark((prev) => {
       const next = !prev;
       localStorage.setItem("darkMode", String(next));
-      if (next) document.documentElement.classList.add("dark");
-      else document.documentElement.classList.remove("dark");
+      if (next) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
       return next;
     });
   };
 
+  // No wrapper div — dark class lives on <html>, children render normally
   return (
     <DarkModeContext.Provider value={{ dark, toggle }}>
-      <div className={dark ? "dark" : ""}>{children}</div>
+      {children}
     </DarkModeContext.Provider>
   );
 }

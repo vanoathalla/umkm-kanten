@@ -63,7 +63,14 @@ function formatPrice(price: number) {
 const stepAccent = { bg: "bg-[#011f6d]", text: "text-white" };
 
 export default function UMKMDetailClient({ umkm, related }: { umkm: UMKM; related: UMKM[] }) {
-  const [activeTab, setActiveTab] = useState<"info" | "produk" | "galeri">("info");
+  const hasProduk = Array.isArray(umkm.produk) && umkm.produk.length > 0;
+  const hasGaleri = Array.isArray(umkm.galeri) && umkm.galeri.filter(g => g).length > 0;
+
+  // Only show tabs that have content
+  type Tab = "info" | "produk" | "galeri";
+  const availableTabs: Tab[] = ["info", ...(hasProduk ? ["produk" as Tab] : []), ...(hasGaleri ? ["galeri" as Tab] : [])];
+
+  const [activeTab, setActiveTab] = useState<Tab>("info");
   const [showQR, setShowQR]       = useState(false);
   const [galeriIdx, setGaleriIdx] = useState<number | null>(null);
   const [loaded, setLoaded]       = useState(false);
@@ -207,8 +214,9 @@ export default function UMKMDetailClient({ umkm, related }: { umkm: UMKM; relate
         </div>
 
         {/* ── Tabs ── */}
+        {availableTabs.length > 1 && (
         <div className="flex gap-1 bg-white dark:bg-gray-900 border border-gray-100 dark:border-white/10 rounded-2xl p-1.5 shadow-sm mb-5">
-          {(["info", "produk", "galeri"] as const).map((tab) => (
+          {availableTabs.map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -218,10 +226,11 @@ export default function UMKMDetailClient({ umkm, related }: { umkm: UMKM; relate
                   : "text-gray-400 hover:text-gray-700 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-white/5"
               }`}
             >
-              {tab === "info" ? "Informasi" : tab === "produk" ? `Produk (${umkm.produk.length})` : `Galeri (${umkm.galeri.length})`}
+              {tab === "info" ? "Informasi" : tab === "produk" ? `Produk (${umkm.produk.length})` : `Galeri (${umkm.galeri.filter(g=>g).length})`}
             </button>
           ))}
         </div>
+        )}
 
         {/* ────────────────────────── TAB: INFO ────────────────────────── */}
         {activeTab === "info" && (
