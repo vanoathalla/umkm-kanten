@@ -163,7 +163,7 @@ export const umkmData: UMKM[] = [
     id: "batik-gumregah",
     nama: "Batik Gumregah",
     logo: "", cover: "",
-    kategori: "Fashion",
+    kategori: "Kerajinan",
     deskripsi: "Batik tulis dan cap khas Kanten produksi Batik Gumregah. Mengangkat motif lokal Desa Kebonagung dengan kualitas pengerjaan yang terjaga.",
     sejarah: "Batik Gumregah berdiri sebagai usaha batik di RT 03 yang melestarikan seni batik tradisional dengan sentuhan motif khas daerah Imogiri.",
     alamat: "RT 03, Dusun Kanten, Desa Kebonagung, Kec. Imogiri, Bantul",
