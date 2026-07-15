@@ -1,8 +1,9 @@
 "use client";
-import { useEffect, useState, use } from "react";
+import { useEffect, useRef, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { supabase, type UMKMRow } from "@/lib/supabase";
-import { Save, Loader2, Image as ImageIcon, X } from "lucide-react";
+import { uploadImage } from "@/lib/upload";
+import { Save, Loader2, ImageIcon, X, Upload, Plus } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import AdminHeader from "@/components/AdminHeader";
@@ -35,13 +36,243 @@ const Section = ({ title, children }: { title: string; children: React.ReactNode
   </section>
 );
 
-const Field = ({ label, children }: { label: string; children: React.ReactNode }) => (
+const Field = ({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) => (
   <div className="space-y-1">
     <label className="text-xs font-semibold text-gray-500">{label}</label>
     {children}
+    {hint && <p className="text-[11px] text-gray-400">{hint}</p>}
   </div>
 );
 
+// ── Reusable image upload field ──────────────────────────────────
+function ImageUploadField({
+  label,
+  hint,
+  value,
+  onChange,
+  uploadFolder,
+  previewClass,
+  previewWidth,
+  previewHeight,
+}: {
+  label: string;
+  hint?: string;
+  value: string;
+  onChange: (url: string) => void;
+  uploadFolder: string;
+  previewClass: string;
+  previewWidth: number;
+  previewHeight: number;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const url = await uploadImage(file, uploadFolder);
+      onChange(url);
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : "Upload gagal");
+    } finally {
+      setUploading(false);
+      // reset input so same file can be re-selected
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <Field label={label} hint={hint}>
+      <div className="flex flex-col gap-2">
+        {/* Preview */}
+        <div
+          className={`${previewClass} border-2 border-dashed border-gray-200 bg-gray-50 rounded-xl overflow-hidden flex items-center justify-center relative group cursor-pointer`}
+          onClick={() => fileRef.current?.click()}
+        >
+          {value ? (
+            <>
+              <Image
+                src={value}
+                alt="preview"
+                width={previewWidth}
+                height={previewHeight}
+                className="object-cover w-full h-full"
+                unoptimized
+              />
+              {/* Overlay on hover */}
+              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+                <div className="text-white text-xs font-semibold flex items-center gap-1.5">
+                  <Upload size={14} /> Ganti foto
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="text-center p-4">
+              {uploading
+                ? <Loader2 size={24} className="animate-spin text-[#011f6d] mx-auto" />
+                : <>
+                    <Upload size={22} className="text-gray-300 mx-auto mb-1.5" />
+                    <p className="text-xs text-gray-400">Klik untuk upload foto</p>
+                    <p className="text-[11px] text-gray-300 mt-0.5">JPG, PNG, WEBP — maks 5MB</p>
+                  </>
+              }
+            </div>
+          )}
+          {uploading && value && (
+            <div className="absolute inset-0 bg-white/70 flex items-center justify-center">
+              <Loader2 size={24} className="animate-spin text-[#011f6d]" />
+            </div>
+          )}
+        </div>
+
+        {/* URL input — tetap bisa input manual */}
+        <div className="flex gap-2">
+          <input
+            value={value}
+            onChange={e => onChange(e.target.value)}
+            className={input + " text-[11px]"}
+            placeholder="Atau tempel URL gambar langsung..."
+          />
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              className="shrink-0 w-9 h-9 flex items-center justify-center rounded-lg border border-gray-200 text-gray-400 hover:text-red-400 hover:border-red-200 transition"
+              title="Hapus foto"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {uploadError && (
+          <p className="text-[11px] text-red-500">{uploadError}</p>
+        )}
+
+        {/* Hidden file input */}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          className="hidden"
+          onChange={handleFile}
+        />
+      </div>
+    </Field>
+  );
+}
+
+// ── Galeri upload field ──────────────────────────────────────────
+function GaleriField({
+  items,
+  onChange,
+}: {
+  items: string[];
+  onChange: (items: string[]) => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
+    setUploading(true);
+    setUploadError("");
+    try {
+      const urls = await Promise.all(files.map(f => uploadImage(f, "galeri")));
+      onChange([...items, ...urls]);
+    } catch (err: unknown) {
+      setUploadError(err instanceof Error ? err.message : "Upload gagal");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  const updateItem = (i: number, val: string) => {
+    const g = [...items];
+    g[i] = val;
+    onChange(g);
+  };
+
+  const removeItem = (i: number) => onChange(items.filter((_, idx) => idx !== i));
+
+  return (
+    <Field label="Foto Galeri (opsional)">
+      <div className="space-y-2">
+        {/* Existing items */}
+        {items.map((url, i) => (
+          <div key={i} className="flex gap-2 items-center">
+            <div
+              className="w-12 h-12 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden shrink-0 flex items-center justify-center cursor-pointer hover:border-[#011f6d]/40 transition"
+              onClick={() => fileRef.current?.click()}
+            >
+              {url
+                ? <Image src={url} alt={`galeri-${i}`} width={48} height={48} className="object-cover w-full h-full" unoptimized />
+                : <ImageIcon size={14} className="text-gray-300" />
+              }
+            </div>
+            <input
+              value={url}
+              onChange={e => updateItem(i, e.target.value)}
+              className={input + " text-[11px]"}
+              placeholder={`URL foto galeri ${i + 1}`}
+            />
+            <button
+              type="button"
+              onClick={() => removeItem(i)}
+              className="shrink-0 text-gray-300 hover:text-red-400 transition"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        ))}
+
+        {/* Upload + add buttons */}
+        <div className="flex gap-2 pt-1">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-1.5 text-xs bg-[#011f6d] text-white font-semibold px-3 py-2 rounded-lg hover:bg-[#1a3d96] transition disabled:opacity-50"
+          >
+            {uploading
+              ? <Loader2 size={13} className="animate-spin" />
+              : <Upload size={13} />
+            }
+            {uploading ? "Mengupload..." : "Upload Foto"}
+          </button>
+          <button
+            type="button"
+            onClick={() => onChange([...items, ""])}
+            className="flex items-center gap-1 text-xs text-[#011f6d] font-semibold hover:underline"
+          >
+            <Plus size={13} /> Tambah URL
+          </button>
+        </div>
+
+        {uploadError && <p className="text-[11px] text-red-500">{uploadError}</p>}
+
+        {/* Hidden multi-file input */}
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/jpeg,image/png,image/webp,image/gif"
+          multiple
+          className="hidden"
+          onChange={handleFile}
+        />
+      </div>
+    </Field>
+  );
+}
+
+// ── Main form page ───────────────────────────────────────────────
 export default function UMKMFormPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const isNew = id === "baru";
@@ -58,7 +289,6 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
     setLoading(true);
     supabase.from("umkm").select("*").eq("id", id).single().then(({ data, error }) => {
       if (data && !error) {
-        // Map all DB fields (snake_case) to form fields (camelCase)
         setForm({
           id:             data.id ?? "",
           nama:           data.nama ?? "",
@@ -86,16 +316,6 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
 
   const set = (key: keyof FormData, val: unknown) =>
     setForm(f => ({ ...f, [key]: val }));
-
-  // Galeri helpers
-  const addGaleri = () => set("galeri", [...(form.galeri as string[]), ""]);
-  const updateGaleri = (i: number, val: string) => {
-    const g = [...(form.galeri as string[])];
-    g[i] = val;
-    set("galeri", g);
-  };
-  const removeGaleri = (i: number) =>
-    set("galeri", (form.galeri as string[]).filter((_, idx) => idx !== i));
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,8 +345,6 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
     </div>
   );
 
-  const galeriList = form.galeri as string[];
-
   return (
     <div className="min-h-screen bg-gray-50">
       <AdminHeader
@@ -137,7 +355,6 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
 
       <form onSubmit={handleSave} className="max-w-3xl mx-auto px-4 sm:px-6 py-6 space-y-5">
 
-        {/* Error / Success */}
         {error && (
           <div className="bg-red-50 border border-red-200 text-red-700 rounded-xl px-4 py-3 text-sm">{error}</div>
         )}
@@ -147,83 +364,34 @@ export default function UMKMFormPage({ params }: { params: Promise<{ id: string 
           </div>
         )}
 
-        {/* ── Foto Profil & Cover ── */}
+        {/* ── Foto ── */}
         <Section title="Foto">
-          {/* Logo / Foto Profil */}
-          <Field label="Foto Profil (Logo) — URL gambar">
-            <div className="flex gap-3 items-start">
-              <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 shrink-0 overflow-hidden flex items-center justify-center">
-                {form.logo
-                  ? <Image src={form.logo} alt="logo preview" width={64} height={64} className="object-cover w-full h-full" unoptimized />
-                  : <ImageIcon size={20} className="text-gray-300" />
-                }
-              </div>
-              <div className="flex-1">
-                <input
-                  value={form.logo}
-                  onChange={e => set("logo", e.target.value)}
-                  className={input}
-                  placeholder="https://... (URL foto profil / logo UMKM)"
-                />
-                <p className="text-[11px] text-gray-400 mt-1">Foto ini tampil sebagai ikon bulat di kartu katalog.</p>
-              </div>
-            </div>
-          </Field>
+          <ImageUploadField
+            label="Foto Profil (Logo)"
+            hint="Tampil sebagai ikon bulat di kartu katalog."
+            value={form.logo}
+            onChange={v => set("logo", v)}
+            uploadFolder="logo"
+            previewClass="w-24 h-24"
+            previewWidth={96}
+            previewHeight={96}
+          />
 
-          {/* Cover */}
-          <Field label="Foto Cover — URL gambar">
-            <div className="space-y-2">
-              <div className="w-full h-36 rounded-xl border-2 border-dashed border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center">
-                {form.cover
-                  ? <Image src={form.cover} alt="cover preview" width={600} height={144} className="object-cover w-full h-full" unoptimized />
-                  : <div className="text-center">
-                      <ImageIcon size={24} className="text-gray-300 mx-auto mb-1" />
-                      <p className="text-xs text-gray-300">Preview cover</p>
-                    </div>
-                }
-              </div>
-              <input
-                value={form.cover}
-                onChange={e => set("cover", e.target.value)}
-                className={input}
-                placeholder="https://... (URL foto cover / banner UMKM)"
-              />
-              <p className="text-[11px] text-gray-400">Foto ini tampil sebagai banner lebar di bagian atas halaman detail.</p>
-            </div>
-          </Field>
+          <ImageUploadField
+            label="Foto Cover"
+            hint="Tampil sebagai banner di bagian atas halaman detail."
+            value={form.cover}
+            onChange={v => set("cover", v)}
+            uploadFolder="cover"
+            previewClass="w-full h-40"
+            previewWidth={600}
+            previewHeight={160}
+          />
 
-          {/* Galeri */}
-          <Field label="Foto Galeri (opsional)">
-            <div className="space-y-2">
-              {galeriList.map((url, i) => (
-                <div key={i} className="flex gap-2 items-center">
-                  <div className="w-10 h-10 rounded-lg border border-gray-200 bg-gray-50 overflow-hidden shrink-0 flex items-center justify-center">
-                    {url
-                      ? <Image src={url} alt={`galeri-${i}`} width={40} height={40} className="object-cover w-full h-full" unoptimized />
-                      : <ImageIcon size={14} className="text-gray-300" />
-                    }
-                  </div>
-                  <input
-                    value={url}
-                    onChange={e => updateGaleri(i, e.target.value)}
-                    className={input}
-                    placeholder={`https://... (foto galeri ${i + 1})`}
-                  />
-                  <button type="button" onClick={() => removeGaleri(i)}
-                    className="text-gray-300 hover:text-red-400 transition shrink-0">
-                    <X size={16} />
-                  </button>
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={addGaleri}
-                className="text-xs text-[#011f6d] font-semibold hover:underline flex items-center gap-1 mt-1"
-              >
-                + Tambah foto galeri
-              </button>
-            </div>
-          </Field>
+          <GaleriField
+            items={form.galeri as string[]}
+            onChange={v => set("galeri", v)}
+          />
         </Section>
 
         {/* ── Informasi Dasar ── */}

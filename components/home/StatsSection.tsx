@@ -44,7 +44,7 @@ function StatCard({
   return (
     <div
       ref={ref}
-      className="group flex flex-col items-center text-center py-8 px-4 rounded-2xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 hover:border-[#011f6d]/20 dark:hover:border-white/20 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
+      className="group flex flex-col items-center text-center py-8 px-4 rounded-2xl bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 hover:border-[#011f6d]/20 dark:hover:border-gray-600 transition-all duration-300 hover:shadow-lg hover:-translate-y-1"
     >
       <div
         className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-110"
@@ -58,7 +58,7 @@ function StatCard({
       >
         {count}{suffix}
       </p>
-      <p className="text-gray-400 dark:text-gray-500 text-sm">{label}</p>
+      <p className="text-gray-600 dark:text-gray-400 text-sm">{label}</p>
     </div>
   );
 }
@@ -77,7 +77,7 @@ export default function StatsSection() {
   }, []);
 
   return (
-    <section className="py-16 bg-gray-50 dark:bg-[#011f6d]/20">
+    <section className="py-16 bg-gray-50 dark:bg-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard icon={Store}  value={totalUMKM}    label="Total UMKM"      accent="#011f6d" />

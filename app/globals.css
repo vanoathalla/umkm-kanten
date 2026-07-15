@@ -21,6 +21,14 @@
   ::-webkit-scrollbar-track { background: #f8f8f8; }
   ::-webkit-scrollbar-thumb { background: #011f6d; border-radius: 4px; }
   ::-webkit-scrollbar-thumb:hover { background: #ffaa4d; }
+
+  /* Dark mode base overrides */
+  .dark body {
+    background-color: #030712;
+    color: #f9fafb;
+  }
+  .dark ::-webkit-scrollbar-track { background: #1f2937; }
+  .dark ::-webkit-scrollbar-thumb { background: #ffaa4d; }
 }
 
 @layer utilities {
@@ -149,10 +157,16 @@
     50%       { transform: translateY(-8px); }
   }
 
-  .animate-fade-up    { animation: fadeUp 0.6s ease forwards; }
-  .animate-fade-in    { animation: fadeIn 0.5s ease forwards; }
-  .animate-slide-left { animation: slideInLeft 0.6s ease forwards; }
+  .animate-fade-up    { animation: fadeUp 0.55s ease forwards; }
+  .animate-fade-in    { animation: fadeIn 0.45s ease forwards; }
+  .animate-slide-left { animation: slideInLeft 0.55s ease forwards; }
   .animate-float      { animation: float 3s ease-in-out infinite; }
+
+  /* Sections below the fold — hint browser to skip rendering until visible */
+  .below-fold {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 400px;
+  }
 
   .delay-100 { animation-delay: 100ms; }
   .delay-150 { animation-delay: 150ms; }

@@ -8,12 +8,25 @@ import CTASection from "@/components/home/CTASection";
 export default function HomePage() {
   return (
     <>
+      {/* Hero is above-fold — render immediately */}
       <HeroSection />
-      <StatsSection />
-      <SearchSection />
-      <AboutSection />
-      <MapOverview />
-      <CTASection />
+
+      {/* Everything below is deferred with content-visibility */}
+      <div className="below-fold">
+        <StatsSection />
+      </div>
+      <div className="below-fold">
+        <SearchSection />
+      </div>
+      <div className="below-fold">
+        <AboutSection />
+      </div>
+      <div className="below-fold">
+        <MapOverview />
+      </div>
+      <div className="below-fold">
+        <CTASection />
+      </div>
     </>
   );
 }

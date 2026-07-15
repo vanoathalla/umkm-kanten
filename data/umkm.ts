@@ -33,7 +33,6 @@ export const kategoriList = [
 
 export const rtList = ["Semua RT", "RT 01", "RT 02", "RT 03", "RT 04", "RT 05"];
 
-export const umkmData: UMKM[] = [
   // ── RT 01 ──────────────────────────────────────────────────────
   {
     id: "bibit-lele",

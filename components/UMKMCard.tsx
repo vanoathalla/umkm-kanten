@@ -23,7 +23,7 @@ function SafeImage({ src, alt, fill, width, height, className, sizes, loading }:
 }) {
   if (!src) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-white/5">
+      <div className="w-full h-full flex items-center justify-center bg-gray-100 dark:bg-gray-700">
         <ImageOff size={24} className="text-gray-300 dark:text-gray-600" />
       </div>
     );
@@ -38,10 +38,10 @@ export default function UMKMCard({ umkm }: { umkm: UMKM }) {
   return (
     <Link
       href={`/umkm/${umkm.id}`}
-      className="group block bg-white dark:bg-white/5 rounded-2xl overflow-hidden border border-gray-100 dark:border-white/10 hover:border-[#ffaa4d]/40 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+      className="group block bg-white dark:bg-gray-800 rounded-2xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-[#ffaa4d]/40 shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
     >
       {/* Cover */}
-      <div className="relative h-44 overflow-hidden bg-gray-100 dark:bg-white/5">
+      <div className="relative h-44 overflow-hidden bg-gray-100 dark:bg-gray-700">
         <SafeImage
           src={umkm.cover}
           alt={umkm.nama}
@@ -63,7 +63,7 @@ export default function UMKMCard({ umkm }: { umkm: UMKM }) {
       {/* Content */}
       <div className="p-4">
         <div className="flex items-start gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 dark:bg-white/10 shrink-0 border border-gray-100 dark:border-white/10 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700 shrink-0 border border-gray-100 dark:border-gray-600 flex items-center justify-center">
             {umkm.logo
               ? <Image src={umkm.logo} alt={`Logo ${umkm.nama}`} width={40} height={40} className="object-cover" />
               : <span className="text-xs font-bold text-gray-400">{umkm.nama.charAt(0)}</span>

@@ -80,7 +80,7 @@ function UMKMListContent() {
             className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 border ${
               rt === r
                 ? "bg-[#ffaa4d] border-[#ffaa4d] text-[#011f6d]"
-                : "border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-[#ffaa4d]/50 hover:text-[#011f6d] dark:hover:text-white"
+                : "border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-[#ffaa4d]/50 hover:text-[#011f6d] dark:hover:text-white"
             }`}
           >
             {r}
