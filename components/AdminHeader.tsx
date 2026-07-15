@@ -54,7 +54,10 @@ export default function AdminHeader({ title, subtitle, backHref, onRefresh }: Ad
               </button>
             )}
             <button
-              onClick={() => router.push("/api/admin/logout")}
+              onClick={async () => {
+                await fetch("/api/admin/logout", { method: "POST" });
+                router.push("/admin/login");
+              }}
               className="text-xs text-gray-400 hover:text-red-500 transition px-2 py-1 rounded-lg hover:bg-red-50 font-medium"
             >
               Logout
