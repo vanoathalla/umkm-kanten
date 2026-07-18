@@ -92,7 +92,7 @@ export default function Footer() {
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-white/50">
           <div className="flex items-center gap-1.5">
             <Copyright size={11} aria-hidden="true" />
-            <span>202 Direktori UMKM Desa Kanten. Hak cipta dilindungi.</span>
+            <span>2026 Direktori UMKM Desa Kanten. Hak cipta dilindungi.</span>
           </div>
           <div className="flex items-center gap-1.5">
             <Code size={11} aria-hidden="true" />
