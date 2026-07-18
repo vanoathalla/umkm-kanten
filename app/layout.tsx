@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Poppins } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import ConditionalLayout from "@/components/ConditionalLayout";
 import ThemeProvider from "@/components/ThemeProvider";
@@ -34,13 +35,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="id" className="scroll-smooth">
       <head>
-        {/* Anti-flash: apply saved theme BEFORE React hydrates */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');})()`
-          }}
-        />
-        {/* Preconnect only to origins actually used on first paint */}
         <link rel="preconnect" href="https://wdodrsbjnizedysminvk.supabase.co" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
@@ -48,6 +42,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body
         className={`${inter.variable} ${poppins.variable} font-sans antialiased bg-white dark:bg-gray-950 text-gray-900 dark:text-white transition-colors duration-300`}
       >
+        {/* Anti-flash: apply saved theme BEFORE React hydrates */}
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `(function(){var t=localStorage.getItem('theme');if(t==='dark')document.documentElement.classList.add('dark');})()`
+          }}
+        />
         <ThemeProvider>
           <ConditionalLayout>{children}</ConditionalLayout>
         </ThemeProvider>
