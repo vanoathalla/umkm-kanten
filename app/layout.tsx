@@ -19,15 +19,22 @@ const poppins = Poppins({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://umkmkanten.com"),
   title: "Direktori UMKM Desa Kanten | Imogiri, Bantul",
   description:
     "Temukan berbagai produk unggulan UMKM Desa Kanten, Kecamatan Imogiri, Kabupaten Bantul secara mudah dalam satu website.",
   keywords: "UMKM Desa Kanten, Imogiri, Bantul, produk lokal, katalog UMKM, Yogyakarta",
   openGraph: {
-    title: "Direktori UMKM Desa Kanten",
+    title: "Direktori UMKM Desa Kanten | Imogiri, Bantul",
     description: "Katalog digital UMKM Desa Kanten, Imogiri, Bantul",
     type: "website",
     locale: "id_ID",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+  },
+  alternates: {
+    canonical: "./",
   },
 };
 

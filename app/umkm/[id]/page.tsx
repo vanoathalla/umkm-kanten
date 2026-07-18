@@ -83,5 +83,32 @@ export default async function UMKMDetailPage({
     related = (othersRaw ?? []).map((r) => rowToUMKM(r as Record<string, unknown>));
   }
 
-  return <UMKMDetailClient umkm={umkm} related={related} />;
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://umkmkanten.com";
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": umkm.nama,
+    "description": umkm.deskripsi,
+    "image": umkm.cover ? [umkm.cover] : (umkm.logo ? [umkm.logo] : []),
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": umkm.alamat || `RT ${umkm.rt}, Kanten`,
+      "addressLocality": "Imogiri",
+      "addressRegion": "Bantul, Yogyakarta",
+      "addressCountry": "ID",
+    },
+    "telephone": umkm.whatsapp ? `+62${umkm.whatsapp.replace(/^62|^0/, "")}` : undefined,
+    "url": `${baseUrl}/umkm/${umkm.id}`,
+    "hasMap": umkm.maps || undefined,
+  };
+
+  return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <UMKMDetailClient umkm={umkm} related={related} />
+    </>
+  );
 }

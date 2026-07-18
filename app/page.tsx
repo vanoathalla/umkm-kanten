@@ -6,8 +6,25 @@ import MapOverview from "@/components/home/MapOverview";
 import CTASection from "@/components/home/CTASection";
 
 export default function HomePage() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Direktori UMKM Desa Kanten",
+    "url": process.env.NEXT_PUBLIC_SITE_URL || "https://umkmkanten.com",
+    "description": "Temukan berbagai produk unggulan UMKM Desa Kanten, Kecamatan Imogiri, Kabupaten Bantul secara mudah dalam satu website.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": `${process.env.NEXT_PUBLIC_SITE_URL || "https://umkmkanten.com"}/umkm?search={search_term_string}`,
+      "query-input": "required name=search_term_string",
+    },
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       {/* Hero is above-fold — render immediately */}
       <HeroSection />
 
