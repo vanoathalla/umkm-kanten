@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Tailwind v4: dark mode config goes here, not in tailwind.config.ts */
+@variant dark (&:where(.dark, .dark *));
+
 @layer base {
   :root {
     --navy: #011f6d;

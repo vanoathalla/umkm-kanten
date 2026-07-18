@@ -43,6 +43,14 @@ function UMKMListContent() {
             featured: (row as any).featured ?? false,
             galeri: (row as any).galeri ?? [],
           })) as unknown as UMKM[];
+
+          // Sort: data lengkap (ada foto + whatsapp) dulu
+          transformed.sort((a, b) => {
+            const scoreOf = (u: UMKM) =>
+              (u.cover ? 2 : 0) + (u.logo ? 1 : 0) + (u.whatsapp ? 1 : 0);
+            return scoreOf(b) - scoreOf(a);
+          });
+
           setUmkmData(transformed);
         }
         setLoading(false);
