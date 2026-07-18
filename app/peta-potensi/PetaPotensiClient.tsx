@@ -14,13 +14,13 @@ import { MapPin, Layers, Download, Maximize2, Info } from "lucide-react";
  *  "pdf"      → embed PDF langsung di halaman
  *  "coming"   → placeholder "segera hadir" (default saat ini)
  */
-const MAP_MODE: "iframe" | "image" | "pdf" | "coming" = "coming";
+const MAP_MODE: "iframe" | "image" | "pdf" | "coming" = "image";
 
 /** Isi sesuai mode yang dipilih */
 const MAP_SRC = {
-  iframe: "",   // contoh: "https://www.google.com/maps/d/embed?mid=XXXX"
-  image: "",   // contoh: "/peta/peta-potensi-umkm.jpg"
-  pdf: "",   // contoh: "/peta/peta-potensi-umkm.pdf"
+  iframe: "",
+  image: "/peta-potensi.jpg",  // taruh file di public/peta-potensi.jpg
+  pdf: "",
 };
 
 /** Link download PDF (opsional, tampil kalau diisi) */
@@ -36,9 +36,9 @@ const legendItems = [
 ];
 
 const infoCards = [
-  { icon: MapPin, value: "3", label: "Dusun Terpetakan" },
+  { icon: MapPin, value: "5", label: "RT Terpetakan" },
   { icon: Layers, value: "7", label: "Kategori Usaha" },
-  { icon: MapPin, value: "8+", label: "Titik UMKM" },
+  { icon: MapPin, value: "21+", label: "Titik UMKM" },
 ];
 
 export default function PetaPotensiClient() {
