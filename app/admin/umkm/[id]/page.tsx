@@ -117,7 +117,7 @@ function ImageUploadField({
                 : <>
                     <Upload size={22} className="text-gray-300 mx-auto mb-1.5" />
                     <p className="text-xs text-gray-400">Klik untuk upload foto</p>
-                    <p className="text-[11px] text-gray-300 mt-0.5">JPG, PNG, WEBP — maks 5MB</p>
+                    <p className="text-[11px] text-gray-300 mt-0.5">JPG, PNG, WEBP</p>
                   </>
               }
             </div>
