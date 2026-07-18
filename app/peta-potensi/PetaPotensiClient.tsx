@@ -19,7 +19,7 @@ const MAP_MODE: "iframe" | "image" | "pdf" | "coming" = "image";
 /** Isi sesuai mode yang dipilih */
 const MAP_SRC = {
   iframe: "",
-  image: "/peta-potensi.jpg",  // taruh file di public/peta-potensi.jpg
+  image: "/peta umkm_page-0001.jpg",
   pdf: "",
 };
 
