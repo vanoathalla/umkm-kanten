@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 
@@ -5,15 +6,26 @@ export default function HeroSection() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#011f6d]">
 
-      {/* CSS gradient background — no external image, zero LCP impact */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        aria-hidden="true"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 60% at 50% 40%, #1a3d96 0%, #011f6d 55%, #010f38 100%)",
-        }}
-      />
+      {/* Background photo - Persawahan Desa Kanten */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <Image
+          src="/hero-bg.jpg"
+          alt="Persawahan Desa Kanten"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover opacity-30"
+        />
+        {/* Transparent blue gradient overlay */}
+        <div
+          className="absolute inset-0"
+          aria-hidden="true"
+          style={{
+            background:
+              "radial-gradient(ellipse 80% 70% at 50% 40%, rgba(26, 61, 150, 0.65) 0%, rgba(1, 31, 109, 0.85) 60%, rgba(1, 15, 56, 0.95) 100%)",
+          }}
+        />
+      </div>
 
       {/* SVG geometric pattern overlay */}
       <svg
