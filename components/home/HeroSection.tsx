@@ -14,7 +14,7 @@ export default function HeroSection() {
           fill
           priority
           sizes="100vw"
-          className="object-cover opacity-30"
+          className="object-cover opacity-12"
         />
         {/* Transparent blue gradient overlay */}
         <div
@@ -22,7 +22,7 @@ export default function HeroSection() {
           aria-hidden="true"
           style={{
             background:
-              "radial-gradient(ellipse 80% 70% at 50% 40%, rgba(26, 61, 150, 0.65) 0%, rgba(1, 31, 109, 0.85) 60%, rgba(1, 15, 56, 0.95) 100%)",
+              "radial-gradient(ellipse 80% 70% at 50% 40%, rgba(26, 61, 150, 0.82) 0%, rgba(1, 31, 109, 0.92) 60%, rgba(1, 15, 56, 0.98) 100%)",
           }}
         />
       </div>
